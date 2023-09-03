@@ -1,15 +1,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
-#define CORRECT_ARGUMENTS_NUMBER 3
+#define TRUE 1
+#define FALSE 0
+
+#define CORRECT_MANIPULATION_ARGUMENTS_NUMBER 3
+#define CORRECT_LISTAGE_ARGUMENTS_NUMBER 2
+
 #define MAX_TASKS 100
 #define MAX_TASKS_NAME_LENGTH 1000
 #define ARRAY_LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
 
+#define TASKS_REGISTRY_FILENAME ".tasks_registry.csv"
+#define TASKS_REGISTRY_HEADER_BUFFER 15 // number of bytes of the CSV header
+#define TASKS_REGISTRY_HEADER "NAME,COMPLETED"
 // Error codes
 #define ERROR_INVALID_NUMBER_OF_ARGS -1
 #define ERROR_INVALID_OPERATION -2
+#define ERROR_TASKS_REGISTRY_DOES_NOT_EXIST -3
+#define ERROR_INVALID_TASKS_REGISTRY -4
 
 typedef struct {
   char name[MAX_TASKS_NAME_LENGTH];
@@ -18,27 +29,82 @@ typedef struct {
 
 enum Operations { Add, Remove, List, Complete };
 
-Task tasks[MAX_TASKS];
-int numTasks = 0;
+void createCSVFile() {
+  FILE *file = fopen(TASKS_REGISTRY_FILENAME, "w");
+
+  fprintf(file, "NAME,COMPLETED");
+  fclose(file);
+}
+
+void writeTaskToFile(Task task) {
+  FILE *file = fopen(TASKS_REGISTRY_FILENAME, "a");
+
+  fprintf(file, "\n%s,%d", task.name, task.completed);
+  fclose(file);
+
+  return;
+}
+
+int doesTasksRegistryExist() {
+  if (access(TASKS_REGISTRY_FILENAME, F_OK) == 0) {
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+int isTasksRegistryEmpty() {
+  FILE *file;
+  file = fopen(TASKS_REGISTRY_FILENAME, "r");
+  if (file == NULL) {
+    return ERROR_TASKS_REGISTRY_DOES_NOT_EXIST;
+  }
+
+  /* read file header */
+  char fileChar;
+  for (int i = 0; i < TASKS_REGISTRY_HEADER_BUFFER; ++i) {
+    fileChar = fgetc(file);
+  }
+
+  if (fileChar == EOF) {
+    fclose(file);
+    return TRUE;
+  }
+
+  if (fileChar == '\n') {
+    fileChar = fgetc(file);
+    if (fileChar == EOF) {
+      fclose(file);
+      return TRUE;
+    }
+
+    while (fileChar != EOF) {
+      if (fileChar != '\n' && fileChar != '\t' && fileChar != ' ') {
+        fclose(file);
+        return FALSE;
+      }
+      fileChar = fgetc(file);
+    }
+
+    fclose(file);
+    return TRUE;
+  }
+
+  fclose(file);
+  return ERROR_INVALID_TASKS_REGISTRY;
+}
 
 void addTask(int taskNameLength, char taskName[taskNameLength]) {
-  if (numTasks >= MAX_TASKS) {
-    printf("Task addition failed: maximum number of tasks (%d) reached\n",
-           MAX_TASKS);
-    return;
+  if (doesTasksRegistryExist() != 1) {
+    createCSVFile();
   }
 
   Task newTask;
   strcpy(newTask.name, taskName);
   newTask.completed = 0;
 
-  tasks[numTasks++] = newTask;
+  writeTaskToFile(newTask);
   printf("Task %s added\n", taskName);
-
-  printf("Tasks:\n");
-  for (int i = 0; i < numTasks; ++i) {
-    printf("%s\n", tasks[i].name);
-  }
 
   return;
 }
@@ -58,42 +124,76 @@ int getOperationFromCmd(int operationStrLength,
   return ERROR_INVALID_OPERATION;
 }
 
-int getNumberOfArgs(int argc) {
-  if (argc != CORRECT_ARGUMENTS_NUMBER) {
+int getNumberOfArgs(int argc, int operation) {
+  int correctArgsNumber;
+
+  if (operation == List) {
+    correctArgsNumber = CORRECT_LISTAGE_ARGUMENTS_NUMBER;
+  } else {
+    correctArgsNumber = CORRECT_MANIPULATION_ARGUMENTS_NUMBER;
+  }
+
+  if (argc != correctArgsNumber) {
     return ERROR_INVALID_NUMBER_OF_ARGS;
   } else {
     return 0;
   }
 }
 
+int listTasks() {
+  if (isTasksRegistryEmpty() == ERROR_INVALID_TASKS_REGISTRY) {
+    return ERROR_INVALID_TASKS_REGISTRY;
+  }
+  if (isTasksRegistryEmpty() == TRUE || doesTasksRegistryExist() == FALSE) {
+    printf("No tasks to be listed\n");
+    return 0;
+  } else {
+    printf("To be implemented\n");
+    /* implementation */
+
+    return 0;
+  }
+}
+
 int main(int argc, char *argv[]) {
-  int numberOfArgs = getNumberOfArgs(argc);
-  if (numberOfArgs == ERROR_INVALID_NUMBER_OF_ARGS) {
+  if (argc == 1) {
     fprintf(stderr,
             "ERROR_INVALID_NUMBER_OF_ARGS: this program must be executed on "
-            "the following form: todox [operation] [taskName]\n");
+            "the following form: todox list or todox [operation] [taskName]\n");
     return ERROR_INVALID_NUMBER_OF_ARGS;
   }
 
   int operationCmdLength = ARRAY_LENGTH(argv[1]);
   char operationCmd[operationCmdLength];
   strcpy(operationCmd, argv[1]);
-
   int operation = getOperationFromCmd(operationCmdLength, operationCmd);
 
-  char taskNameLength = ARRAY_LENGTH(argv[1]);
-  char taskName[taskNameLength];
-  strcpy(taskName, argv[2]);
+  int numberOfArgs = getNumberOfArgs(argc, operation);
+  if (numberOfArgs == ERROR_INVALID_NUMBER_OF_ARGS) {
+    fprintf(stderr,
+            "ERROR_INVALID_NUMBER_OF_ARGS: this program must be executed on "
+            "the following form: todox list or todox [operation] [taskName]\n");
+    return ERROR_INVALID_NUMBER_OF_ARGS;
+  }
 
   switch (operation) {
-  case Add:
+  case Add: {
+    char taskNameLength = ARRAY_LENGTH(argv[1]);
+    char taskName[taskNameLength];
+    strcpy(taskName, argv[2]);
+
     addTask(taskNameLength, taskName);
     break;
+  }
   case Remove:
     printf("To be implemented\n");
     break;
   case List:
-    printf("To be implemented\n");
+    if (listTasks() == ERROR_INVALID_TASKS_REGISTRY) {
+      fprintf(stderr,
+              "ERROR_INVALID_TASKS_REGISTRY: invalid tasks registry format.\n");
+      return 1;
+    }
     break;
   case Complete:
     printf("To be implemented\n");
@@ -101,7 +201,7 @@ int main(int argc, char *argv[]) {
   default:
     fprintf(stderr, "ERROR_INVALID_OPERATION: operations supported are: add, "
                     "remove, list or complete\n");
-    return ERROR_INVALID_OPERATION;
+    return 1;
   }
 
   return 0;
