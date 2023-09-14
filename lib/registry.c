@@ -1,5 +1,7 @@
 #include "globals.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 void createCSVFile() {
@@ -35,7 +37,7 @@ int getIsTasksRegistryEmpty() {
 
   /* read file header */
   char fileChar;
-  for (int i = 0; i < TASKS_REGISTRY_HEADER_BUFFER; ++i) {
+  for (int i = 0; i < TASKS_REGISTRY_HEADER_BUFFER + 1; ++i) {
     fileChar = fgetc(file);
   }
 
@@ -65,4 +67,59 @@ int getIsTasksRegistryEmpty() {
 
   fclose(file);
   return ERROR_INVALID_TASKS_REGISTRY;
+}
+
+int readHeader(FILE *taskRegistry) {
+  char *header = "NAME,COMPLETED\n";
+
+  for (int i = 0; i < strlen(header); ++i) {
+    fgetc(taskRegistry);
+  }
+
+  return 0;
+}
+
+int parseRegistry(FILE *taskRegistry, Task *out_tasks[], int *out_tasksLen) {
+  Task *temp_out_tasks = NULL;
+
+  char line[MAX_TASKS_NAME_LENGTH + 2];
+
+  while (fgets(line, MAX_TASKS_NAME_LENGTH + 2, taskRegistry)) {
+    char *lineTmp = strdup(line);
+    char *token = strtok(lineTmp, ",");
+
+    while (token) {
+      int taskNameLen = strlen(token) - 1;
+      char *taskName = (char *)malloc(taskNameLen);
+      if (taskName == NULL) {
+        fprintf(stderr, "Memory allocation failed");
+        return ERROR_MEM_ALLOCATION_FAILED;
+      }
+      strcpy(taskName, token);
+
+      char *completedEnd;
+      char *completedToken = strtok(NULL, ",");
+      int completed = strtol(completedToken, &completedEnd, 10);
+
+      Task task;
+      task.name = taskName;
+      task.completed = completed;
+
+      temp_out_tasks =
+          (Task *)realloc(temp_out_tasks, ++(*out_tasksLen) * sizeof(Task));
+
+      if (temp_out_tasks == NULL) {
+        fprintf(stderr, "Memory allocation failed");
+        return ERROR_MEM_ALLOCATION_FAILED;
+      }
+
+      temp_out_tasks[*out_tasksLen - 1] = task;
+      token = strtok(NULL, ",");
+    }
+
+    *out_tasks = temp_out_tasks;
+    free(lineTmp);
+  }
+
+  return 0;
 }

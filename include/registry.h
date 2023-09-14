@@ -8,5 +8,7 @@ void createCSVFile();
 void writeTaskToFile(Task task);
 int getDoesTasksRegistryExist();
 int getIsTasksRegistryEmpty();
+int readHeader(FILE *taskRegistry);
+int parseRegistry(FILE *taskRegistry, Task *out_tasks[], int *out_tasksLen);
 
 #endif
