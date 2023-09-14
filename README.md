@@ -12,7 +12,9 @@ The following features are done:
 
 1. Add new tasks
 2. Persist tasks in the system
-3. List tasks
+3. List all tasks
+4. List completed tasks
+5. List pending tasks
 
 ### Work in Progress:
 
