@@ -14,7 +14,7 @@ void createCSVFile() {
 void writeTaskToFile(Task task) {
   FILE *file = fopen(TASKS_REGISTRY_NAME, "a");
 
-  fprintf(file, "\n%s,%d", task.name, task.completed);
+  fprintf(file, "\n%s,%d", task.name, task.is_completed);
   fclose(file);
 
   return;
@@ -103,7 +103,7 @@ int parseRegistry(FILE *taskRegistry, Task *out_tasks[], int *out_tasksLen) {
 
       Task task;
       task.name = taskName;
-      task.completed = completed;
+      task.is_completed = completed;
 
       temp_out_tasks =
           (Task *)realloc(temp_out_tasks, ++(*out_tasksLen) * sizeof(Task));

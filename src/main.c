@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-enum Operations { Add, Remove, List, Complete };
+enum Operations { Add, Complete, Remove, ListAll, ListPending, ListCompleted };
 
 int getOperationFromCmd(int operationStrLength,
                         char operationStr[operationStrLength]) {
@@ -13,10 +13,14 @@ int getOperationFromCmd(int operationStrLength,
     return Add;
   } else if (strcmp(operationStr, "remove") == 0) {
     return Remove;
-  } else if (strcmp(operationStr, "list") == 0) {
-    return List;
+  } else if (strcmp(operationStr, "list-all") == 0) {
+    return ListAll;
   } else if (strcmp(operationStr, "complete") == 0) {
     return Complete;
+  } else if (strcmp(operationStr, "list") == 0) {
+    return ListPending;
+  } else if (strcmp(operationStr, "list-completed") == 0) {
+    return ListCompleted;
   }
 
   return ERROR_INVALID_OPERATION;
@@ -25,9 +29,10 @@ int getOperationFromCmd(int operationStrLength,
 int getNumberOfArgs(int argc, int operation) {
   int correctArgsNumber;
 
-  if (operation == List) {
+  if (operation == ListAll || operation == ListPending ||
+      operation == ListCompleted) {
     correctArgsNumber = CORRECT_LISTAGE_ARGUMENTS_NUMBER;
-  } else {
+  } else if (operation == Remove || operation == Complete || operation == Add) {
     correctArgsNumber = CORRECT_MANIPULATION_ARGUMENTS_NUMBER;
   }
 
@@ -46,7 +51,7 @@ int main(int argc, char *argv[]) {
     return ERROR_INVALID_NUMBER_OF_ARGS;
   }
 
-  int operationCmdLength = ARRAY_LENGTH(argv[1]);
+  int operationCmdLength = strlen(argv[1]);
   char operationCmd[operationCmdLength];
   strcpy(operationCmd, argv[1]);
   int operation = getOperationFromCmd(operationCmdLength, operationCmd);
@@ -61,7 +66,7 @@ int main(int argc, char *argv[]) {
 
   switch (operation) {
   case Add: {
-    char taskNameLength = ARRAY_LENGTH(argv[1]);
+    char taskNameLength = strlen(argv[1]);
     char taskName[taskNameLength];
     strcpy(taskName, argv[2]);
 
@@ -71,8 +76,22 @@ int main(int argc, char *argv[]) {
   case Remove:
     printf("To be implemented\n");
     break;
-  case List:
+  case ListAll:
     if (listTasks() == ERROR_INVALID_TASKS_REGISTRY) {
+      fprintf(stderr,
+              "ERROR_INVALID_TASKS_REGISTRY: invalid tasks registry format.\n");
+      return 1;
+    }
+    break;
+  case ListPending:
+    if (listPendingTasks() == ERROR_INVALID_TASKS_REGISTRY) {
+      fprintf(stderr,
+              "ERROR_INVALID_TASKS_REGISTRY: invalid tasks registry format.\n");
+      return 1;
+    }
+    break;
+  case ListCompleted:
+    if (listCompletedTasks() == ERROR_INVALID_TASKS_REGISTRY) {
       fprintf(stderr,
               "ERROR_INVALID_TASKS_REGISTRY: invalid tasks registry format.\n");
       return 1;

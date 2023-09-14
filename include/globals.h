@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
@@ -21,9 +23,9 @@
 #define ERROR_INVALID_TASKS_REGISTRY -4
 #define ERROR_MEM_ALLOCATION_FAILED -5
 
-typedef struct {
+typedef struct Task {
   char *name;
-  int completed;
+  bool is_completed;
 } Task;
 
 #endif
