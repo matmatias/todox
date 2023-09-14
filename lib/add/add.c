@@ -7,11 +7,11 @@ void addTask(int taskNameLength, char taskName[]) {
     createCSVFile();
   }
 
-  Task newTask;
-  strcpy(newTask.name, taskName);
-  newTask.completed = 0;
+  Task task;
+  task.name = taskName;
+  task.is_completed = false;
 
-  writeTaskToFile(newTask);
+  writeTaskToFile(task);
   printf("Task %s added\n", taskName);
 
   return;
