@@ -15,10 +15,10 @@ The following features are done:
 3. List all tasks
 4. List completed tasks
 5. List pending tasks
+6. Mark tasks as completed
 
 ### Work in Progress:
 
 The following features are being worked on:
 
-2. Remove tasks
-3. Mark tasks as completed
+1. Remove tasks
