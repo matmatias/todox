@@ -10,5 +10,7 @@ int getDoesTasksRegistryExist();
 int getIsTasksRegistryEmpty();
 int readHeader(FILE *taskRegistry);
 int parseRegistry(FILE *taskRegistry, Task *out_tasks[], int *out_tasksLen);
+int changeCompleteInRegistry(FILE *taskRegistry, char searchedTask[],
+                             bool isCompleted);
 
 #endif

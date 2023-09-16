@@ -1,6 +1,7 @@
 #include "globals.h"
 
 #include "add.h"
+#include "complete.h"
 #include "list.h"
 #include <stdio.h>
 #include <string.h>
@@ -80,30 +81,35 @@ int main(int argc, char *argv[]) {
     if (listTasks() == ERROR_INVALID_TASKS_REGISTRY) {
       fprintf(stderr,
               "ERROR_INVALID_TASKS_REGISTRY: invalid tasks registry format.\n");
-      return 1;
+      return -1;
     }
     break;
   case ListPending:
     if (listPendingTasks() == ERROR_INVALID_TASKS_REGISTRY) {
       fprintf(stderr,
               "ERROR_INVALID_TASKS_REGISTRY: invalid tasks registry format.\n");
-      return 1;
+      return -1;
     }
     break;
   case ListCompleted:
     if (listCompletedTasks() == ERROR_INVALID_TASKS_REGISTRY) {
       fprintf(stderr,
               "ERROR_INVALID_TASKS_REGISTRY: invalid tasks registry format.\n");
-      return 1;
+      return -1;
     }
     break;
-  case Complete:
-    printf("To be implemented\n");
+  case Complete: {
+    char taskNameLength = strlen(argv[1]);
+    char taskName[taskNameLength];
+    strcpy(taskName, argv[2]);
+
+    return complete_task(taskName);
     break;
+  }
   default:
     fprintf(stderr, "ERROR_INVALID_OPERATION: operations supported are: add, "
                     "remove, list or complete\n");
-    return 1;
+    return -1;
   }
 
   return 0;

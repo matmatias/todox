@@ -7,14 +7,14 @@
 void createCSVFile() {
   FILE *file = fopen(TASKS_REGISTRY_NAME, "w");
 
-  fprintf(file, "NAME,COMPLETED");
+  fprintf(file, "NAME,COMPLETED\n");
   fclose(file);
 }
 
 void writeTaskToFile(Task task) {
   FILE *file = fopen(TASKS_REGISTRY_NAME, "a");
 
-  fprintf(file, "\n%s,%d", task.name, task.is_completed);
+  fprintf(file, "%s,%d\n", task.name, task.is_completed);
   fclose(file);
 
   return;
@@ -121,5 +121,46 @@ int parseRegistry(FILE *taskRegistry, Task *out_tasks[], int *out_tasksLen) {
     free(lineTmp);
   }
 
+  return 0;
+}
+
+int changeCompleteInRegistry(FILE *readBuffer, char searchedTask[],
+                             bool isCompleted) {
+  char line[MAX_TASKS_NAME_LENGTH + 3];
+  char tempFileName[] = ".temp_write_registry.csv";
+
+  FILE *writeBuffer = fopen(tempFileName, "w");
+  char *headerLine = (char *)malloc(strlen(TASKS_REGISTRY_HEADER + 1));
+
+  sprintf(headerLine, "%s\n", TASKS_REGISTRY_HEADER);
+  fputs(headerLine, writeBuffer);
+
+  while (fgets(line, sizeof(line), readBuffer) != NULL) {
+    char *tmpLine = strdup(line);
+    char *token = strtok(tmpLine, ",");
+    int taskNameLen = strlen(token);
+
+    if (strcmp(searchedTask, token) == 0) {
+      char newLine[taskNameLen + 3];
+      sprintf(newLine, "%s,%d\n", searchedTask, isCompleted);
+
+      fputs(newLine, writeBuffer);
+    } else {
+      fputs(line, writeBuffer);
+    }
+  }
+
+  if (remove(TASKS_REGISTRY_NAME) != 0) {
+    fprintf(stderr, "File deletion failed in changeCompleteInRegistry");
+    return -1;
+  }
+
+  if (rename(tempFileName, TASKS_REGISTRY_NAME) != 0) {
+    fprintf(stderr, "File rename failed in changeCompleteInRegistry");
+    return -1;
+  }
+
+  fclose(readBuffer);
+  fclose(writeBuffer);
   return 0;
 }

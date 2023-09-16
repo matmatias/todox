@@ -4,16 +4,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int listTasks() {
+int getRegistryStatus() {
   int isTasksRegistryEmpty = getIsTasksRegistryEmpty();
   int doesTasksRegistryExist = getDoesTasksRegistryExist();
 
   if (isTasksRegistryEmpty == ERROR_INVALID_TASKS_REGISTRY) {
     return ERROR_INVALID_TASKS_REGISTRY;
   }
+
   if (isTasksRegistryEmpty == TRUE || doesTasksRegistryExist == FALSE) {
     printf("No tasks to be listed\n");
     return 0;
+  }
+
+  if (isTasksRegistryEmpty == ERROR_INVALID_TASKS_REGISTRY) {
+    return ERROR_INVALID_TASKS_REGISTRY;
+  }
+
+  if (isTasksRegistryEmpty == TRUE || doesTasksRegistryExist == FALSE) {
+    printf("No tasks to be listed\n");
+    return 0;
+  }
+
+  return 0;
+}
+
+int listTasks() {
+  int registryStatus = getRegistryStatus();
+  if (registryStatus != 0) {
+    return registryStatus;
   }
 
   FILE *taskRegistry = fopen(TASKS_REGISTRY_NAME, "r");
@@ -22,7 +41,7 @@ int listTasks() {
   Task *tasks = NULL;
   int tasksLen = 0;
   int *tasksLenPtr = &tasksLen;
-  int parseIntStatus = parseRegistry(taskRegistry, &tasks, tasksLenPtr);
+  int parseRegistryStatus = parseRegistry(taskRegistry, &tasks, tasksLenPtr);
 
   printf("Tasks:\n");
   for (int i = 0; i < tasksLen; ++i) {
@@ -39,19 +58,13 @@ int listTasks() {
   }
 
   free(tasks);
-  return parseIntStatus;
+  return parseRegistryStatus;
 }
 
 int listPendingTasks() {
-  int isTasksRegistryEmpty = getIsTasksRegistryEmpty();
-  int doesTasksRegistryExist = getDoesTasksRegistryExist();
-
-  if (isTasksRegistryEmpty == ERROR_INVALID_TASKS_REGISTRY) {
-    return ERROR_INVALID_TASKS_REGISTRY;
-  }
-  if (isTasksRegistryEmpty == TRUE || doesTasksRegistryExist == FALSE) {
-    printf("No tasks to be listed\n");
-    return 0;
+  int registryStatus = getRegistryStatus();
+  if (registryStatus != 0) {
+    return registryStatus;
   }
 
   FILE *taskRegistry = fopen(TASKS_REGISTRY_NAME, "r");
@@ -74,15 +87,9 @@ int listPendingTasks() {
 }
 
 int listCompletedTasks() {
-  int isTasksRegistryEmpty = getIsTasksRegistryEmpty();
-  int doesTasksRegistryExist = getDoesTasksRegistryExist();
-
-  if (isTasksRegistryEmpty == ERROR_INVALID_TASKS_REGISTRY) {
-    return ERROR_INVALID_TASKS_REGISTRY;
-  }
-  if (isTasksRegistryEmpty == TRUE || doesTasksRegistryExist == FALSE) {
-    printf("No tasks to be listed\n");
-    return 0;
+  int registryStatus = getRegistryStatus();
+  if (registryStatus != 0) {
+    return registryStatus;
   }
 
   FILE *taskRegistry = fopen(TASKS_REGISTRY_NAME, "r");
