@@ -5,8 +5,9 @@
 This is a terminal todo list tracker written in C.
 
 ## Usage
-
+```bash
 ./build/todox [command] [task]?
+```
 
 - Commands:
     1. list: list pending tasks
