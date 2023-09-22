@@ -1,6 +1,7 @@
 .vscode
 *.csv
 *.lua
+build
 
 # Prerequisites
 *.d

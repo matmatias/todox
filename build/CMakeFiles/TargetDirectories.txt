@@ -1,3 +1,0 @@
-/home/matias/Development/todox/build/CMakeFiles/todox.dir
-/home/matias/Development/todox/build/CMakeFiles/edit_cache.dir
-/home/matias/Development/todox/build/CMakeFiles/rebuild_cache.dir
