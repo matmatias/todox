@@ -9,12 +9,17 @@ This is a terminal todo list tracker written in C.
 ./build/todox [command] [task]?
 ```
 
-- Commands:
-    1. list: list pending tasks
-    2. list-all: list pending and completed tasks
-    3. list-completed: list completed tasks
-    4. add [task]: add pending task
-    5. complete [task]: mark [task] as completed
+### \[command\]:
+
+1. **list**: list pending tasks
+2. **list-all**: list pending and completed tasks
+3. **list-completed**: list completed tasks
+4. **add** [task]: add pending task
+5. **complete** [task]: mark [task] as completed
+
+### \[task\]
+
+String of 999 characters maximum.
 
 ## Dependencies
 - A C compiler
