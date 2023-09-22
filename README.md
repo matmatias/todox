@@ -28,9 +28,14 @@ String of 999 characters maximum.
 
 ## Setup
 Create the build directory. From the root of the project, run:
+
 ```bash
 mkdir build
+cmake -S . -B build
+mv ./build/compile_commands.json ./compile_commands.json
 ```
+
+This might be necessary to get code completion/snippets.
 
 ## Features
 
