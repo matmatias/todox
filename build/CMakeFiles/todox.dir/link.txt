@@ -1,0 +1,1 @@
+/usr/bin/cc  -g -rdynamic CMakeFiles/todox.dir/src/main.c.o CMakeFiles/todox.dir/lib/registry.c.o CMakeFiles/todox.dir/lib/add/add.c.o CMakeFiles/todox.dir/lib/list/list.c.o CMakeFiles/todox.dir/lib/complete/complete.c.o -o todox 

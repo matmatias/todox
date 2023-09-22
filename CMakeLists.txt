@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.0)
+project(todox)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+add_executable(todox src/main.c lib/registry.c lib/add/add.c lib/list/list.c lib/complete/complete.c)
+include_directories(${CMAKE_SOURCE_DIR}/include)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
