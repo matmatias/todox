@@ -5,8 +5,9 @@
 # Prerequisites
 *.d
 
-# Cache
+# CMake
 .cache
+**/compile_commands.json
 
 # Object files
 *.o
