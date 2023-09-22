@@ -4,6 +4,17 @@
 
 This is a terminal todo list tracker written in C.
 
+## Usage
+
+./build/todox [command] [task]?
+
+- Commands:
+    1. list: list pending tasks
+    2. list-all: list pending and completed tasks
+    3. list-completed: list completed tasks
+    4. add [task]: add pending task
+    5. complete [task]: mark [task] as completed
+
 ## Dependencies
 - A C compiler
 - [make](https://www.gnu.org/software/make/)
