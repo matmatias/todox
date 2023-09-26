@@ -1,41 +1,17 @@
 #include "globals.h"
 #include "registry.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 
-int getRegistryStatus() {
-  int isTasksRegistryEmpty = getIsTasksRegistryEmpty();
-  int doesTasksRegistryExist = getDoesTasksRegistryExist();
-
-  if (isTasksRegistryEmpty == ERROR_INVALID_TASKS_REGISTRY) {
-    return ERROR_INVALID_TASKS_REGISTRY;
-  }
-
-  if (isTasksRegistryEmpty == TRUE || doesTasksRegistryExist == FALSE) {
+void listTasks(void) {
+  bool is_tasks_registry_populated = get_is_tasks_registry_populated();
+  if (is_tasks_registry_populated == false) {
     printf("No tasks to be listed\n");
-    return 0;
+    return;
   }
 
-  if (isTasksRegistryEmpty == ERROR_INVALID_TASKS_REGISTRY) {
-    return ERROR_INVALID_TASKS_REGISTRY;
-  }
-
-  if (isTasksRegistryEmpty == TRUE || doesTasksRegistryExist == FALSE) {
-    printf("No tasks to be listed\n");
-    return 0;
-  }
-
-  return 0;
-}
-
-int listTasks() {
-  int registryStatus = getRegistryStatus();
-  if (registryStatus != 0) {
-    return registryStatus;
-  }
-
-  FILE *taskRegistry = fopen(TASKS_REGISTRY_NAME, "r");
+  char *tasks_registry_full_path = get_tasks_registry_full_path();
+  FILE *taskRegistry = fopen(tasks_registry_full_path, "r");
   readHeader(taskRegistry);
 
   Task *tasks = NULL;
@@ -58,16 +34,17 @@ int listTasks() {
   }
 
   free(tasks);
-  return parseRegistryStatus;
 }
 
-int listPendingTasks() {
-  int registryStatus = getRegistryStatus();
-  if (registryStatus != 0) {
-    return registryStatus;
+void listPendingTasks(void) {
+  bool is_tasks_registry_populated = get_is_tasks_registry_populated();
+  if (is_tasks_registry_populated == false) {
+    printf("No tasks to be listed\n");
+    return;
   }
 
-  FILE *taskRegistry = fopen(TASKS_REGISTRY_NAME, "r");
+  char *tasks_registry_full_path = get_tasks_registry_full_path();
+  FILE *taskRegistry = fopen(tasks_registry_full_path, "r");
   readHeader(taskRegistry);
 
   Task *tasks = NULL;
@@ -83,16 +60,17 @@ int listPendingTasks() {
   }
 
   free(tasks);
-  return parseIntStatus;
 }
 
-int listCompletedTasks() {
-  int registryStatus = getRegistryStatus();
-  if (registryStatus != 0) {
-    return registryStatus;
+void listCompletedTasks(void) {
+  bool is_tasks_registry_populated = get_is_tasks_registry_populated();
+  if (is_tasks_registry_populated == false) {
+    printf("No tasks to be listed\n");
+    return;
   }
 
-  FILE *taskRegistry = fopen(TASKS_REGISTRY_NAME, "r");
+  char *tasks_registry_full_path = get_tasks_registry_full_path();
+  FILE *taskRegistry = fopen(tasks_registry_full_path, "r");
   readHeader(taskRegistry);
 
   Task *tasks = NULL;
@@ -108,5 +86,4 @@ int listCompletedTasks() {
   }
 
   free(tasks);
-  return parseIntStatus;
 }

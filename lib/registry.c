@@ -2,17 +2,71 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 
-void createCSVFile() {
-  FILE *file = fopen(TASKS_REGISTRY_NAME, "w");
+bool get_does_dir_exists(const char *tasks_registry_path) {
+  if (access(tasks_registry_path, F_OK) == 0) {
+    return true;
+  };
+
+  return false;
+}
+
+char *get_tasks_registry_base_path(void) {
+  char *tasks_registry_base_path = NULL;
+  char *tasks_registry_dir_location = ".local/share";
+  int separator_slashes_qty = 2;
+
+  tasks_registry_base_path = (char *)malloc(
+      strlen(getenv("HOME")) + strlen(tasks_registry_dir_location) +
+      strlen(PROGRAM_NAME) + separator_slashes_qty);
+
+  sprintf(tasks_registry_base_path, "%s/%s/%s", getenv("HOME"),
+          tasks_registry_dir_location, PROGRAM_NAME);
+
+  return tasks_registry_base_path;
+}
+
+char *get_tasks_registry_full_path() {
+  char *tasks_registry_base_path = get_tasks_registry_base_path();
+
+  int separator_slashes_qty = 1;
+  char *tasks_registry_full_path = NULL;
+  tasks_registry_full_path =
+      (char *)malloc(strlen(tasks_registry_base_path) +
+                     strlen(TASKS_REGISTRY_NAME) + separator_slashes_qty);
+  sprintf(tasks_registry_full_path, "%s/%s", get_tasks_registry_base_path(),
+          TASKS_REGISTRY_NAME);
+
+  free(tasks_registry_base_path);
+  return tasks_registry_full_path;
+}
+
+void createCSVFile(void) {
+  if (get_does_dir_exists(get_tasks_registry_base_path()) == false) {
+    const int mkdir_status = mkdir(get_tasks_registry_base_path(), 0755);
+
+    if (mkdir_status != 0) {
+      fprintf(stderr, "Error creating tasks registry in %s\n",
+              get_tasks_registry_base_path());
+      exit(1);
+    };
+  }
+
+  char *tasks_registry_full_path = get_tasks_registry_full_path();
+  FILE *file = fopen(tasks_registry_full_path, "w");
+  free(tasks_registry_full_path);
 
   fprintf(file, "NAME,COMPLETED\n");
   fclose(file);
 }
 
 void writeTaskToFile(Task task) {
-  FILE *file = fopen(TASKS_REGISTRY_NAME, "a");
+  char *tasks_registry_full_path = get_tasks_registry_full_path();
+  FILE *file = fopen(tasks_registry_full_path, "a");
+  free(tasks_registry_full_path);
 
   fprintf(file, "%s,%d\n", task.name, task.is_completed);
   fclose(file);
@@ -20,20 +74,23 @@ void writeTaskToFile(Task task) {
   return;
 }
 
-int getDoesTasksRegistryExist() {
-  if (access(TASKS_REGISTRY_NAME, F_OK) == 0) {
-    return TRUE;
+bool getDoesTasksRegistryExist(void) {
+  char *tasks_registry_full_path = get_tasks_registry_full_path();
+
+  if (access(tasks_registry_full_path, F_OK) == 0) {
+    free(tasks_registry_full_path);
+    return true;
   }
 
-  return FALSE;
+  free(tasks_registry_full_path);
+  return false;
 }
 
-int getIsTasksRegistryEmpty() {
+bool getIsTasksRegistryEmpty(void) {
   FILE *file;
-  file = fopen(TASKS_REGISTRY_NAME, "r");
-  if (file == NULL) {
-    return ERROR_TASKS_REGISTRY_DOES_NOT_EXIST;
-  }
+  char *tasks_registry_full_path = get_tasks_registry_full_path();
+  file = fopen(tasks_registry_full_path, "r");
+  free(tasks_registry_full_path);
 
   /* read file header */
   char fileChar;
@@ -43,30 +100,46 @@ int getIsTasksRegistryEmpty() {
 
   if (fileChar == EOF) {
     fclose(file);
-    return TRUE;
+    return true;
   }
 
   if (fileChar == '\n') {
     fileChar = fgetc(file);
     if (fileChar == EOF) {
       fclose(file);
-      return TRUE;
+      return true;
     }
 
     while (fileChar != EOF) {
       if (fileChar != '\n' && fileChar != '\t' && fileChar != ' ') {
         fclose(file);
-        return FALSE;
+        return false;
       }
       fileChar = fgetc(file);
     }
 
     fclose(file);
-    return TRUE;
+    return true;
   }
 
   fclose(file);
-  return ERROR_INVALID_TASKS_REGISTRY;
+  fprintf(stderr,
+          "ERROR_INVALID_TASKS_REGISTRY: invalid tasks registry format.\n");
+  exit(1);
+}
+
+bool get_is_tasks_registry_populated(void) {
+  bool doesTasksRegistryExist = getDoesTasksRegistryExist();
+  if (doesTasksRegistryExist == false) {
+    return false;
+  }
+
+  bool isTasksRegistryEmpty = getIsTasksRegistryEmpty();
+  if (isTasksRegistryEmpty == true) {
+    return false;
+  }
+
+  return true;
 }
 
 int readHeader(FILE *taskRegistry) {
@@ -124,13 +197,20 @@ int parseRegistry(FILE *taskRegistry, Task *out_tasks[], int *out_tasksLen) {
   return 0;
 }
 
-int changeCompleteInRegistry(FILE *readBuffer, char searchedTask[],
-                             bool isCompleted) {
+void changeCompleteInRegistry(FILE *readBuffer, char searchedTask[],
+                              bool isCompleted) {
   char line[MAX_TASKS_NAME_LENGTH + 3];
-  char tempFileName[] = ".temp_write_registry.csv";
 
-  FILE *writeBuffer = fopen(tempFileName, "w");
-  char *headerLine = (char *)malloc(strlen(TASKS_REGISTRY_HEADER + 1));
+  // Assemble the temp file full path
+  char tempFileName[] = ".temp_write_registry.csv";
+  char *temp_file_full_path = NULL;
+  temp_file_full_path = (char *)malloc(strlen(get_tasks_registry_base_path()) +
+                                       strlen(tempFileName) + 1);
+  sprintf(temp_file_full_path, "%s/%s", get_tasks_registry_base_path(),
+          tempFileName);
+
+  FILE *writeBuffer = fopen(temp_file_full_path, "w");
+  char *headerLine = (char *)malloc(strlen(TASKS_REGISTRY_HEADER) + 1);
 
   sprintf(headerLine, "%s\n", TASKS_REGISTRY_HEADER);
   fputs(headerLine, writeBuffer);
@@ -150,17 +230,34 @@ int changeCompleteInRegistry(FILE *readBuffer, char searchedTask[],
     }
   }
 
-  if (remove(TASKS_REGISTRY_NAME) != 0) {
+  char *tasks_registry_full_path = get_tasks_registry_full_path();
+  if (remove(tasks_registry_full_path) != 0) {
     fprintf(stderr, "File deletion failed in changeCompleteInRegistry");
-    return -1;
+    exit(1);
   }
 
-  if (rename(tempFileName, TASKS_REGISTRY_NAME) != 0) {
+  if (rename(temp_file_full_path, tasks_registry_full_path) != 0) {
     fprintf(stderr, "File rename failed in changeCompleteInRegistry");
-    return -1;
+    exit(1);
   }
 
+  free(tasks_registry_full_path);
   fclose(readBuffer);
   fclose(writeBuffer);
-  return 0;
+}
+
+int purge_registry() {
+  char *tasks_registry_full_path = get_tasks_registry_full_path();
+
+  if (remove(tasks_registry_full_path) == 0) {
+    free(tasks_registry_full_path);
+    printf("Taks registry successfully purged\n");
+
+    return 0;
+  }
+
+  free(tasks_registry_full_path);
+  fprintf(stderr, "Error purging tasks registry\n");
+
+  return -1;
 }

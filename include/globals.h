@@ -1,11 +1,12 @@
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#define TRUE 1
-#define FALSE 0
-
+#define PROGRAM_NAME "todox"
 #define CORRECT_MANIPULATION_ARGUMENTS_NUMBER 3
 #define CORRECT_LISTAGE_ARGUMENTS_NUMBER 2
 

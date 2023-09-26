@@ -3,10 +3,19 @@
 #include "add.h"
 #include "complete.h"
 #include "list.h"
+#include "registry.h"
 #include <stdio.h>
 #include <string.h>
 
-enum Operations { Add, Complete, Remove, ListAll, ListPending, ListCompleted };
+enum Operations {
+  Add,
+  Complete,
+  Remove,
+  Purge,
+  ListAll,
+  ListPending,
+  ListCompleted
+};
 
 int getOperationFromCmd(int operationStrLength,
                         char operationStr[operationStrLength]) {
@@ -14,6 +23,8 @@ int getOperationFromCmd(int operationStrLength,
     return Add;
   } else if (strcmp(operationStr, "remove") == 0) {
     return Remove;
+  } else if (strcmp(operationStr, "purge") == 0) {
+    return Purge;
   } else if (strcmp(operationStr, "list-all") == 0) {
     return ListAll;
   } else if (strcmp(operationStr, "complete") == 0) {
@@ -31,7 +42,7 @@ int getNumberOfArgs(int argc, int operation) {
   int correctArgsNumber;
 
   if (operation == ListAll || operation == ListPending ||
-      operation == ListCompleted) {
+      operation == ListCompleted || operation == Purge) {
     correctArgsNumber = CORRECT_LISTAGE_ARGUMENTS_NUMBER;
   } else if (operation == Remove || operation == Complete || operation == Add) {
     correctArgsNumber = CORRECT_MANIPULATION_ARGUMENTS_NUMBER;
@@ -77,26 +88,17 @@ int main(int argc, char *argv[]) {
   case Remove:
     printf("To be implemented\n");
     break;
+  case Purge:
+    purge_registry();
+    break;
   case ListAll:
-    if (listTasks() == ERROR_INVALID_TASKS_REGISTRY) {
-      fprintf(stderr,
-              "ERROR_INVALID_TASKS_REGISTRY: invalid tasks registry format.\n");
-      return -1;
-    }
+    listTasks();
     break;
   case ListPending:
-    if (listPendingTasks() == ERROR_INVALID_TASKS_REGISTRY) {
-      fprintf(stderr,
-              "ERROR_INVALID_TASKS_REGISTRY: invalid tasks registry format.\n");
-      return -1;
-    }
+    listPendingTasks();
     break;
   case ListCompleted:
-    if (listCompletedTasks() == ERROR_INVALID_TASKS_REGISTRY) {
-      fprintf(stderr,
-              "ERROR_INVALID_TASKS_REGISTRY: invalid tasks registry format.\n");
-      return -1;
-    }
+    listCompletedTasks();
     break;
   case Complete: {
     char taskNameLength = strlen(argv[1]);
