@@ -246,18 +246,19 @@ void changeCompleteInRegistry(FILE *readBuffer, char searchedTask[],
   fclose(writeBuffer);
 }
 
-int purge_registry() {
+void purge_registry(void) {
   char *tasks_registry_full_path = get_tasks_registry_full_path();
 
-  if (remove(tasks_registry_full_path) == 0) {
+  int remove_tasks_registry_status = remove(tasks_registry_full_path);
+  if (remove_tasks_registry_status == 0) {
     free(tasks_registry_full_path);
-    printf("Taks registry successfully purged\n");
+    printf("Tasks registry successfully purged\n");
 
-    return 0;
+    return;
   }
 
   free(tasks_registry_full_path);
-  fprintf(stderr, "Error purging tasks registry\n");
-
-  return -1;
+  fprintf(stderr, "Error purging tasks registry. ERROR CODE: %d\n",
+          remove_tasks_registry_status);
+  exit(1);
 }

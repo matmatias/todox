@@ -13,7 +13,7 @@ int readHeader(FILE *taskRegistry);
 int parseRegistry(FILE *taskRegistry, Task *out_tasks[], int *out_tasksLen);
 void changeCompleteInRegistry(FILE *taskRegistry, char searchedTask[],
                              bool isCompleted);
-int purge_registry();
+void purge_registry(void);
 char *get_tasks_registry_full_path();
 
 #endif
