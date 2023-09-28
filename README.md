@@ -14,8 +14,9 @@ This is a terminal todo list tracker written in C.
 1. **list**: list pending tasks
 2. **list-all**: list pending and completed tasks
 3. **list-completed**: list completed tasks
-4. **add** [task]: add pending task
-5. **complete** [task]: mark [task] as completed
+4. **purge**: remove all tasks
+5. **add** [task]: add pending task
+6. **complete** [task]: mark [task] as completed
 
 ### \[task\]
 
