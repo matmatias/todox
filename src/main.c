@@ -2,6 +2,7 @@
 
 #include "add.h"
 #include "complete.h"
+#include "remove.h"
 #include "list.h"
 #include "registry.h"
 #include <stdio.h>
@@ -85,9 +86,14 @@ int main(int argc, char *argv[]) {
     addTask(taskNameLength, taskName);
     break;
   }
-  case Remove:
-    printf("To be implemented\n");
+  case Remove: {
+    char taskNameLength = strlen(argv[1]);
+    char taskName[taskNameLength];
+    strcpy(taskName, argv[2]);
+
+    remove_task(taskName);
     break;
+  }
   case Purge:
     purge_registry();
     break;
@@ -105,7 +111,7 @@ int main(int argc, char *argv[]) {
     char taskName[taskNameLength];
     strcpy(taskName, argv[2]);
 
-    return complete_task(taskName);
+    complete_task(taskName);
     break;
   }
   default:

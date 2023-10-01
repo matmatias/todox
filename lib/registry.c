@@ -246,6 +246,54 @@ void changeCompleteInRegistry(FILE *readBuffer, char searchedTask[],
   fclose(writeBuffer);
 }
 
+bool remove_task_from_registry(FILE *readBuffer, char searchedTask[]) {
+  char line[MAX_TASKS_NAME_LENGTH + 3];
+
+  // Assemble the temp file full path
+  char tempFileName[] = ".temp_write_registry.csv";
+  char *temp_file_full_path = NULL;
+  temp_file_full_path = (char *)malloc(strlen(get_tasks_registry_base_path()) +
+                                       strlen(tempFileName) + 1);
+  sprintf(temp_file_full_path, "%s/%s", get_tasks_registry_base_path(),
+          tempFileName);
+
+  FILE *writeBuffer = fopen(temp_file_full_path, "w");
+  char *headerLine = (char *)malloc(strlen(TASKS_REGISTRY_HEADER) + 1);
+
+  sprintf(headerLine, "%s\n", TASKS_REGISTRY_HEADER);
+  fputs(headerLine, writeBuffer);
+
+  bool was_task_found = false;
+  while (fgets(line, sizeof(line), readBuffer) != NULL) {
+    char *tmpLine = strdup(line);
+    char *token = strtok(tmpLine, ",");
+    int taskNameLen = strlen(token);
+
+    if (strcmp(searchedTask, token) != 0) {
+      fputs(line, writeBuffer);
+    } else {
+      was_task_found = true;
+    }
+  }
+
+  char *tasks_registry_full_path = get_tasks_registry_full_path();
+  if (remove(tasks_registry_full_path) != 0) {
+    fprintf(stderr, "File deletion failed in changeCompleteInRegistry");
+    exit(1);
+  }
+
+  if (rename(temp_file_full_path, tasks_registry_full_path) != 0) {
+    fprintf(stderr, "File rename failed in changeCompleteInRegistry");
+    exit(1);
+  }
+
+  free(tasks_registry_full_path);
+  fclose(readBuffer);
+  fclose(writeBuffer);
+
+  return was_task_found;
+}
+
 void purge_registry(void) {
   char *tasks_registry_full_path = get_tasks_registry_full_path();
 
