@@ -51,12 +51,7 @@ The following features are done:
 5. List pending tasks
 6. Mark tasks as completed
 7. Purge all tasks
-
-### Work in Progress:
-
-The following features are being worked on:
-
-1. Remove tasks
+8. Remove specific tasks
 
 ## Compiling
 
