@@ -40,8 +40,6 @@ This might be necessary to get code completion/snippets.
 
 ## Features
 
-### Done
-
 The following features are done:
 
 1. Add new tasks
