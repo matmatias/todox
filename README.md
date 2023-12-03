@@ -1,4 +1,4 @@
-# TodoX (WORK IN PROGRESS)
+# TodoX
 
 ## About
 
