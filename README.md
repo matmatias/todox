@@ -30,12 +30,14 @@ String of 999 characters maximum.
 ## Install
 You can get the todox binaries from the latest release.
 
+**IMPORTANT**: these binaries are for amd64 archtecture only!
+
 - To install as a .deb package, run:
 ```bash
 sudo dpkg -i todox_1.0_amd64.deb
 ```
 
-Or you can just download the raw binary and put it in /usr/bin.
+- Or you can just download the raw binary and put it in /usr/bin.
 
 ## Uninstalling
 - To uninstall as a .deb package, run:
