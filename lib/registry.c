@@ -162,7 +162,7 @@ int parseRegistry(FILE *taskRegistry, Task *out_tasks[], int *out_tasksLen) {
     char *token = strtok(lineTmp, ",");
 
     while (token) {
-      int taskNameLen = strlen(token) - 1;
+      int taskNameLen = strlen(token) + 1;
       char *taskName = (char *)malloc(taskNameLen);
       if (taskName == NULL) {
         fprintf(stderr, "Memory allocation failed");
