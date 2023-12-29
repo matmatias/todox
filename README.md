@@ -27,6 +27,27 @@ String of 999 characters maximum.
 - [make](https://www.gnu.org/software/make/)
 - [cmake](https://cmake.org/)
 
+## Install
+You can get the todox binaries from the latest release.
+
+- To install as a .deb package, run:
+```bash
+sudo dpkg -i todox_1.0_amd64.deb
+```
+
+Or you can just download the raw binary and put it in /usr/bin.
+
+## Uninstalling
+- To uninstall as a .deb package, run:
+```bash
+sudo apt uninstall todox
+```
+
+- To uninstall as a raw binary, run:
+```bash
+sudo rm /usr/bin/todox
+```
+
 ## Setup
 Create the build directory. From the root of the project, run:
 
