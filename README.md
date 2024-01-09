@@ -6,7 +6,7 @@ This is a terminal todo list tracker written in C.
 
 ## Usage
 ```bash
-./build/todox [command] [task]?
+todox [command] [task]?
 ```
 
 ### \[command\]:
